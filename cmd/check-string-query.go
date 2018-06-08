@@ -46,8 +46,8 @@ func newCheckStringQueryCmd(out io.Writer) *cobra.Command {
 	cmd.Flags().StringVarP(&c.Critical, "critical", "c", "1:", "critical threshold for minimum amount of search results")
 	cmd.Flags().StringVarP(&c.Warning, "warning", "w", "2:", "warning threshold for minimum amount of search results")
 	cmd.Flags().StringVarP(&c.Index, "index", "i", "*", "the index to search in")
-	cmd.Flags().BoolVarP(&c.Cache, "cache", "e", false, "switch using query cache on/off - default is off")
-	cmd.Flags().BoolVarP(&c.Debug, "debug", "d", false, "switch debug mode on/off - default is off")
+	cmd.Flags().BoolVarP(&c.Cache, "cache", "e", false, "switch using query cache on/off (default is cache off)")
+	cmd.Flags().BoolVarP(&c.Debug, "debug", "d", false, "switch debug mode on/off (default is cache off)")
 
 	return cmd
 }
