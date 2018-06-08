@@ -1,14 +1,25 @@
 # check-elasticsearch
 Icinga Checks based on ElasticSearch results
 
+## Commands
+
+### stringQuery
+
+Submit any Lucene query to search for results in the given index.
+
+- Search for any message cntaining the string "ldap" within the last 15 minutes
+```
+message:("ldap") AND @timestamp:>now-15m
+```
+
 ## Default Flags
 
-| flag | short | description |
+| Flag | Short | Description |
 | -- | -- | -- |
-| critical | c | defines a [threshold](#threshold) for a critical return status |
-| warning | w | defines a [threshold](#threshold) for a critical return status |
-| index | i | the ElasticSearch index to search in |
-| date-range | d | the date range to filter results |
+| index | i | The ElasticSearch index to search in |
+| critical | c | Defines a [threshold](#thresholds) for a critical return status |
+| warning | w | Defines a [threshold](#thresholds) for a critical return status |
+| debug | d | Switch debug mode on/off |
 
 ## Thresholds
 

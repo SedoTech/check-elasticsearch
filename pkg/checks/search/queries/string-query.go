@@ -29,8 +29,8 @@ func NewCheckStringQuery(client elastic.Client, query string) CheckStringQuery {
 type CheckStringQueryOptions struct {
 	ThresholdWarning  string
 	ThresholdCritical string
-	DateRange         string
 	Index             string
+	Debug             bool
 }
 
 // CheckAvailableAddresses checks if the deployment has a minimum of available replicas
@@ -42,25 +42,23 @@ func (c *checkStringQueryImpl) CheckStringQueryString(options CheckStringQueryOp
 		return icinga.NewResult(name, icinga.ServiceStatusUnknown, fmt.Sprintf("can't check status: %v", err))
 	}
 
-	agg := elastic.NewDateRangeAggregation().Field("@timestamp").AddRange(options.DateRange, "now")
-
-	src, err := agg.Source()
-	data, err := json.Marshal(src)
-	got := string(data)
-	fmt.Printf("Agg: %v\n", got)
-
 	query := elastic.NewQueryStringQuery(c.Query)
 	query.TimeZone("Europe/Berlin")
 
-	qsrc, err := query.Source()
-	qdata, err := json.Marshal(qsrc)
-	qgot := string(qdata)
-	fmt.Printf("NewQueryStringQuery: %v\n", qgot)
+	if options.Debug {
+		src, err := query.Source()
+		if err == nil {
+			data, err := json.Marshal(src)
+			if err == nil {
+				fmt.Printf("NewQueryStringQuery: %v\n", string(data))
+			}
+		}
+	}
 
 	searchResult, err := c.Client.Search().
 		Index(options.Index).
+		RequestCache(false).
 		Query(query).
-		Aggregation("ScheissOtto", agg).
 		From(0).Size(0).
 		Pretty(true).
 		Do(context.Background())

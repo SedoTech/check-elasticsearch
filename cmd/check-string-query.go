@@ -11,13 +11,13 @@ import (
 
 type (
 	checkStringQueryCmd struct {
-		out       io.Writer
-		Client    elastic.Client
-		Query     string
-		Warning   string
-		Critical  string
-		DateRange string
-		Index     string
+		out      io.Writer
+		Client   elastic.Client
+		Query    string
+		Warning  string
+		Critical string
+		Index    string
+		Debug    bool
 	}
 )
 
@@ -44,8 +44,8 @@ func newCheckStringQueryCmd(out io.Writer) *cobra.Command {
 
 	cmd.Flags().StringVarP(&c.Critical, "critical", "c", "1:", "critical threshold for minimum amount of search results")
 	cmd.Flags().StringVarP(&c.Warning, "warning", "w", "2:", "warning threshold for minimum amount of search results")
-	cmd.Flags().StringVarP(&c.DateRange, "date-range", "d", "now-15m/M", "the date range from now on in the past")
 	cmd.Flags().StringVarP(&c.Index, "index", "i", "*", "the index to search in")
+	cmd.Flags().BoolVarP(&c.Debug, "debug", "d", false, "switch debug mode on/off")
 
 	return cmd
 }
@@ -55,8 +55,8 @@ func (c *checkStringQueryCmd) run() {
 	results := checkcheckStringQuery.CheckStringQueryString(queries.CheckStringQueryOptions{
 		ThresholdWarning:  c.Warning,
 		ThresholdCritical: c.Critical,
-		DateRange:         c.DateRange,
 		Index:             c.Index,
+		Debug:             c.Debug,
 	})
 	results.Exit()
 }
