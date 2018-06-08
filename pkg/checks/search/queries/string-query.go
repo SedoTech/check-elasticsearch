@@ -31,7 +31,7 @@ type CheckStringQueryOptions struct {
 	ThresholdCritical string
 	Index             string
 	Cache             bool
-	Debug             bool
+	Verbose           int
 }
 
 // CheckAvailableAddresses checks if the deployment has a minimum of available replicas
@@ -46,7 +46,7 @@ func (c *checkStringQueryImpl) CheckStringQueryString(options CheckStringQueryOp
 	query := elastic.NewQueryStringQuery(c.Query)
 	query.TimeZone("Europe/Berlin")
 
-	if options.Debug {
+	if options.Verbose > 0 {
 		src, err := query.Source()
 		if err == nil {
 			data, err := json.Marshal(src)
@@ -66,8 +66,6 @@ func (c *checkStringQueryImpl) CheckStringQueryString(options CheckStringQueryOp
 	if err != nil {
 		return icinga.NewResult(name, icinga.ServiceStatusUnknown, fmt.Sprintf("can't query ElasticSearch: %v", err))
 	}
-
-	fmt.Printf("Query took %d milliseconds\n", searchResult.TookInMillis)
 
 	totalHits := searchResult.Hits.TotalHits
 	status := statusCheck.Check(float64(totalHits))

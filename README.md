@@ -19,7 +19,7 @@ message:("ldap") AND @timestamp:>now-15m
 | index | i | The ElasticSearch index to search in |
 | critical | c | Defines a [threshold](#thresholds) for a critical return status |
 | warning | w | Defines a [threshold](#thresholds) for a critical return status |
-| debug | d | Switch debug mode on/off |
+| verbose | v | Manage verbosity |
 
 ## Thresholds
 
