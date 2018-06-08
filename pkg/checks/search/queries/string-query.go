@@ -30,6 +30,7 @@ type CheckStringQueryOptions struct {
 	ThresholdWarning  string
 	ThresholdCritical string
 	Index             string
+	Cache             bool
 	Debug             bool
 }
 
@@ -57,7 +58,7 @@ func (c *checkStringQueryImpl) CheckStringQueryString(options CheckStringQueryOp
 
 	searchResult, err := c.Client.Search().
 		Index(options.Index).
-		RequestCache(false).
+		RequestCache(options.Cache).
 		Query(query).
 		From(0).Size(0).
 		Pretty(true).
