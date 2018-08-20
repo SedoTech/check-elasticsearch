@@ -33,7 +33,7 @@ func newRootCmd(args []string) *cobra.Command {
 
 	cmd.AddCommand(
 		// check commands
-		newCheckStringQueryCmd(out),
+		newStringQueryCmd(out),
 	)
 
 	return cmd
@@ -43,7 +43,7 @@ func newRootCmd(args []string) *cobra.Command {
 func NameArgs() cobra.PositionalArgs {
 	return func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
-			return errors.New("query is required")
+			return errors.New("URL is required")
 		}
 		return nil
 	}

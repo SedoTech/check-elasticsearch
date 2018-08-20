@@ -9,24 +9,25 @@ import (
 )
 
 type (
-	// CheckStringQuery interface to check a query string
-	CheckStringQuery interface {
-		CheckStringQueryString(CheckStringQueryOptions) icinga.Result
+	// StringQueryCheck interface to check a query string
+	StringQueryCheck interface {
+		StringQuery(StringQueryOptions) icinga.Result
 	}
 
-	checkStringQueryImpl struct {
+	stringQueryImpl struct {
 		Client elastic.Client
 		Query  string
 	}
 )
 
-// NewCheckStringQuery creates a new instance of CheckStringQuery
-func NewCheckStringQuery(client elastic.Client, query string) CheckStringQuery {
-	return &checkStringQueryImpl{Client: client, Query: query}
+// NewStringQuery creates a new instance of StringQueryCheck
+func NewStringQuery(client elastic.Client, query string) StringQueryCheck {
+	return &stringQueryImpl{Client: client, Query: query}
 }
 
-// CheckAvailableAddressesOptions contains options needed to run CheckAvailableAddresses check
-type CheckStringQueryOptions struct {
+// StringQueryOptions contains options needed to run StringQueryCheck check
+type StringQueryOptions struct {
+	Query             string
 	ThresholdWarning  string
 	ThresholdCritical string
 	Index             string
@@ -34,9 +35,9 @@ type CheckStringQueryOptions struct {
 	Verbose           int
 }
 
-// CheckAvailableAddresses checks if the deployment has a minimum of available replicas
-func (c *checkStringQueryImpl) CheckStringQueryString(options CheckStringQueryOptions) icinga.Result {
-	name := "Queries.StringQuery"
+// StringQuery checks the result of the given Lucene query against the threshold values
+func (c *stringQueryImpl) StringQuery(options StringQueryOptions) icinga.Result {
+	name := "StringQueryCheck.StringQuery"
 
 	statusCheck, err := icinga.NewStatusCheck(options.ThresholdWarning, options.ThresholdCritical)
 	if err != nil {
@@ -46,31 +47,40 @@ func (c *checkStringQueryImpl) CheckStringQueryString(options CheckStringQueryOp
 	query := elastic.NewQueryStringQuery(c.Query)
 	query.TimeZone("Europe/Berlin")
 
-	if options.Verbose > 0 {
-		src, err := query.Source()
-		if err == nil {
-			data, err := json.Marshal(src)
-			if err == nil {
-				fmt.Printf("NewQueryStringQuery: %v\n", string(data))
-			}
-		}
-	}
-
 	searchResult, err := c.Client.Search().
-		Index(options.Index).
-		RequestCache(options.Cache).
+		Index(options.Index). // Use specific elasticsearch index
+		RequestCache(options.Cache). // Whether or not to use resluts from cache
 		Query(query).
-		From(0).Size(0).
-		Pretty(true).
-		Do(context.Background())
+		From(0).Size(0). // Start the search from specific index. Return specific number of search hits.
+		Pretty(true). // Pretty print JSON output
+		Do(context.Background()) // Execute the search and return a SearchResult, using the Background context which enables the request to carry data through the process
 	if err != nil {
 		return icinga.NewResult(name, icinga.ServiceStatusUnknown, fmt.Sprintf("can't query ElasticSearch: %v", err))
 	}
 
 	totalHits := searchResult.Hits.TotalHits
 	status := statusCheck.Check(float64(totalHits))
-	message := fmt.Sprintf("Search produced %v hit(s) - (Query took %d ms from index [%v])",
-		totalHits, searchResult.TookInMillis, options.Index)
+	message := fmt.Sprintf("Search produced %v hit(s) - (Query took %d ms)", totalHits, searchResult.TookInMillis)
+
+	if options.Verbose > 0 {
+		src, err := query.Source()
+		if err == nil {
+			data, err := json.Marshal(src)
+			if err == nil {
+				fmt.Printf("%s: %v\n", name, string(data))
+			}
+		}
+
+		cacheOnOff := "off"
+		if options.Cache {
+			cacheOnOff = "on"
+		}
+		fmt.Printf("Cache is switched %v\n", cacheOnOff)
+		fmt.Printf("Query took %v ms\n", searchResult.TookInMillis)
+		if totalHits > 0 {
+			fmt.Printf("Description %v\n", searchResult.Hits.Hits[0].Explanation.Description)
+		}
+	}
 
 	return icinga.NewResult(name, status, message)
 }
