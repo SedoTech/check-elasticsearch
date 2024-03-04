@@ -1,9 +1,9 @@
-package main
+package cmd
 
 import (
 	"errors"
-	"os"
 	"github.com/spf13/cobra"
+	"os"
 )
 
 var (
@@ -11,7 +11,7 @@ var (
 	version     string
 )
 
-func main() {
+func Execute() {
 	cmd := newRootCmd(os.Args[1:])
 	if err := cmd.Execute(); err != nil {
 		os.Exit(1)

@@ -1,12 +1,12 @@
-package main
+package cmd
 
 import (
-	"io"
 	"github.com/benkeil/icinga-checks-library"
+	"github.com/lhoffjann/check-elasticsearch/pkg/checks/search/queries"
+	"github.com/lhoffjann/check-elasticsearch/pkg/utils"
 	"github.com/olivere/elastic"
-	"github.com/sgnl04/check-elasticsearch/pkg/checks/search/queries"
-	"github.com/sgnl04/check-elasticsearch/pkg/utils"
 	"github.com/spf13/cobra"
+	"io"
 )
 
 type (
