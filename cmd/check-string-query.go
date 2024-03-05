@@ -9,19 +9,17 @@ import (
 	"io"
 )
 
-type (
-	stringQueryCmd struct {
-		out      io.Writer
-		Client   elasticsearch.Client
-		Url      string
-		Query    string
-		Warning  string
-		Critical string
-		Index    string
-		Cache    bool
-		Verbose  int
-	}
-)
+type stringQueryCmd struct {
+	out      io.Writer
+	Client   *elasticsearch.Client
+	Url      string
+	Query    string
+	Warning  string
+	Critical string
+	Index    string
+	Cache    bool
+	Verbose  int
+}
 
 func newStringQueryCmd(out io.Writer) *cobra.Command {
 	c := &stringQueryCmd{out: out}
@@ -37,7 +35,7 @@ func newStringQueryCmd(out io.Writer) *cobra.Command {
 			if err != nil {
 				icinga.NewResult("NewElasticClient", icinga.ServiceStatusUnknown, err.Error()).Exit()
 			}
-			c.Client = *client
+			c.Client = client
 		},
 		Run: func(cmd *cobra.Command, args []string) {
 			c.run()
@@ -57,7 +55,7 @@ func newStringQueryCmd(out io.Writer) *cobra.Command {
 }
 
 func (c *stringQueryCmd) run() {
-	stringQuery := queries.NewStringQuery(&c.Client, c.Query)
+	stringQuery := queries.NewStringQuery(c.Client, c.Query)
 	results := stringQuery.StringQuery(queries.StringQueryOptions{
 		Query:             c.Query,
 		ThresholdWarning:  c.Warning,

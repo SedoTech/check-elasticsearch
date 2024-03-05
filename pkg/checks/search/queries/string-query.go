@@ -3,12 +3,13 @@ package queries
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+
 	"github.com/benkeil/icinga-checks-library"
 	"github.com/elastic/go-elasticsearch/v7"
 )
 
 type (
-	// StringQueryCheck interface to check a query string
 	StringQueryCheck interface {
 		StringQuery(StringQueryOptions) icinga.Result
 	}
@@ -19,12 +20,10 @@ type (
 	}
 )
 
-// NewStringQuery creates a new instance of StringQueryCheck
 func NewStringQuery(client *elasticsearch.Client, query string) StringQueryCheck {
 	return &stringQueryImpl{Client: client, Query: query}
 }
 
-// StringQueryOptions contains options needed to run StringQueryCheck check
 type StringQueryOptions struct {
 	Query             string
 	ThresholdWarning  string
@@ -34,51 +33,81 @@ type StringQueryOptions struct {
 	Verbose           int
 }
 
-// StringQuery checks the result of the given Lucene query against the threshold values
 func (c *stringQueryImpl) StringQuery(options StringQueryOptions) icinga.Result {
 	name := "StringQueryCheck.StringQuery"
 	client := c.Client
 	statusCheck, err := icinga.NewStatusCheck(options.ThresholdWarning, options.ThresholdCritical)
 	if err != nil {
-		return icinga.NewResult(name, icinga.ServiceStatusUnknown, fmt.Sprintf("can't check status: %v", err))
+		return icingaErrorMessage(name, err)
 	}
+
 	searchResult, err := client.Search(
 		client.Search.WithQuery(options.Query),
-		client.Search.WithIndex(options.Index))
+		client.Search.WithIndex(options.Index),
+		client.Search.WithRequestCache(options.Cache))
 	if err != nil {
-		return icinga.NewResult(name, icinga.ServiceStatusUnknown, fmt.Sprintf("can't check status: %v", err))
+		return icingaErrorMessage(name, err)
 	}
 
+	totalHits, timeTook, err := extractHitsInfo(searchResult.Body)
+	if err != nil {
+		return icingaErrorMessage(name, err)
+	}
+	status := statusCheck.Check(float64(totalHits))
+	message := fmt.Sprintf("Search produced %v hit(s) - (Query took %d ms)", int(totalHits), int(timeTook))
+
+	// not sure what this tries to accomplish tbh.
+	if options.Verbose > 0 {
+		cacheOnOff := "off"
+		if options.Cache {
+			cacheOnOff = "on"
+		}
+		fmt.Printf("Cache is switched %v\n", cacheOnOff)
+		fmt.Printf("Query took %v ms\n", timeTook)
+	}
+	return icinga.NewResult(name, status, message)
+}
+
+func extractHitsInfo(body io.ReadCloser) (float64, float64, error) {
 	var result map[string]interface{}
-	json.NewDecoder(searchResult.Body).Decode(&result)
+	if err := json.NewDecoder(body).Decode(&result); err != nil {
+		return 0, 0, err
+	}
+
 	hitsMap, ok := result["hits"].(map[string]interface{})
 	if !ok {
-		fmt.Println("Invalid type for 'hits'")
+		return 0, 0, fmt.Errorf("Invalid type for 'hits'")
 	}
-	totalHits, ok := hitsMap["total"].(float64)
-	status := statusCheck.Check(float64(totalHits))
-	//message := fmt.Sprintf("Search produced %v hit(s) - (Query took %d ms)", totalHits, searchResult.TookInMillis)
-	message := fmt.Sprintf("Search produced %v hit(s) - (Query took %d ms)", int(totalHits), 0)
-	/*
-		if options.Verbose > 0 {
-			src, err := query.Source()
-			if err == nil {
-				data, err := json.Marshal(src)
-				if err == nil {
-					fmt.Printf("%s: %v\n", name, string(data))
-				}
-			}
 
-			cacheOnOff := "off"
-			if options.Cache {
-				cacheOnOff = "on"
-			}
-			fmt.Printf("Cache is switched %v\n", cacheOnOff)
-			//fmt.Printf("Query took %v ms\n", searchResult.TookInMillis)
-			//if totalHits > 0 {
-			//	fmt.Printf("Description %v\n", searchResult.Hits.Hits[0].Explanation.Description)
-			//}
-		}
-	*/
-	return icinga.NewResult(name, status, message)
+	totalHits, err := extractTotalHits(hitsMap)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	timeTook, err := extractFloat64(result, "took")
+	if err != nil {
+		return 0, 0, err
+	}
+
+	return totalHits, timeTook, nil
+}
+
+func extractFloat64(data map[string]interface{}, key string) (float64, error) {
+	value, ok := data[key].(float64)
+	if !ok {
+		return 0, fmt.Errorf("Invalid type for '%s'", key)
+	}
+	return value, nil
+}
+
+func extractTotalHits(data map[string]interface{}) (float64, error) {
+	total := data["total"]
+	if value, ok := total.(map[string]interface{}); ok {
+		return extractFloat64(value, "value")
+	}
+	return extractFloat64(data, "total")
+}
+
+func icingaErrorMessage(name string, err error) icinga.Result {
+	return icinga.NewResult(name, icinga.ServiceStatusUnknown, fmt.Sprintf("can't check status: %v", err))
 }
