@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"github.com/benkeil/icinga-checks-library"
+	"github.com/elastic/go-elasticsearch/v7"
 	"github.com/lhoffjann/check-elasticsearch/pkg/checks/search/queries"
 	"github.com/lhoffjann/check-elasticsearch/pkg/utils"
-	"github.com/olivere/elastic"
 	"github.com/spf13/cobra"
 	"io"
 )
@@ -12,7 +12,7 @@ import (
 type (
 	stringQueryCmd struct {
 		out      io.Writer
-		Client   elastic.Client
+		Client   elasticsearch.Client
 		Url      string
 		Query    string
 		Warning  string
@@ -57,7 +57,7 @@ func newStringQueryCmd(out io.Writer) *cobra.Command {
 }
 
 func (c *stringQueryCmd) run() {
-	stringQuery := queries.NewStringQuery(c.Client, c.Query)
+	stringQuery := queries.NewStringQuery(&c.Client, c.Query)
 	results := stringQuery.StringQuery(queries.StringQueryOptions{
 		Query:             c.Query,
 		ThresholdWarning:  c.Warning,
