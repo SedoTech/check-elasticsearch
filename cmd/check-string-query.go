@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/benkeil/icinga-checks-library"
+	"github.com/SedoTech/icinga-checks-library"
 	"github.com/elastic/go-elasticsearch/v7"
 	"github.com/lhoffjann/check-elasticsearch/pkg/checks/search/queries"
 	"github.com/lhoffjann/check-elasticsearch/pkg/utils"

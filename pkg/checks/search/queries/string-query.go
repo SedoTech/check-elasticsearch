@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/benkeil/icinga-checks-library"
+	"github.com/SedoTech/icinga-checks-library"
 	"github.com/elastic/go-elasticsearch/v7"
 )
 

@@ -3,7 +3,7 @@ module github.com/lhoffjann/check-elasticsearch
 go 1.21.7
 
 require (
-	github.com/benkeil/icinga-checks-library v0.0.0-20180602113235-08535c513b97
+	github.com/SedoTech/icinga-checks-library v0.0.0-20180602113235-08535c513b97
 	github.com/elastic/go-elasticsearch/v7 v7.17.10
 	github.com/spf13/cobra v0.0.3
 )

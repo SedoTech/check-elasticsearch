@@ -1,5 +1,5 @@
-github.com/benkeil/icinga-checks-library v0.0.0-20180602113235-08535c513b97 h1:RxjrI5z9Io2zu1yDGwPUE7k24cEAuS6nBWtUkb58Xgk=
-github.com/benkeil/icinga-checks-library v0.0.0-20180602113235-08535c513b97/go.mod h1:5lmEisHQe9Yezn1qayCFV92ca6jmFGErjUJ/29l1lK0=
+github.com/SedoTech/icinga-checks-library v0.0.0-20180602113235-08535c513b97 h1:pWHaZ0r9mfp0CLv5L6ugzHMcy8lHTNg98/kXqxFE54M=
+github.com/SedoTech/icinga-checks-library v0.0.0-20180602113235-08535c513b97/go.mod h1:HMHoH69zVVZZVzieXtXPEmteeyigaXvYKv9ggmAdBGM=
 github.com/elastic/go-elasticsearch/v7 v7.17.10 h1:TCQ8i4PmIJuBunvBS6bwT2ybzVFxxUhhltAs3Gyu1yo=
 github.com/elastic/go-elasticsearch/v7 v7.17.10/go.mod h1:OJ4wdbtDNk5g503kvlHLyErCgQwwzmDtaFC4XyOxXA4=
 github.com/inconshreveable/mousetrap v1.0.0 h1:Z8tu5sraLXCXIcARxBp/8cbvlwVa7Z1NHg9XEKhtSvM=

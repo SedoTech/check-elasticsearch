@@ -3,7 +3,7 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/benkeil/icinga-checks-library"
+  name = "github.com/SedoTech/icinga-checks-library"
   packages = ["."]
   revision = "08535c513b97756e9ae60d4e617aad55d9cb9c04"
 
