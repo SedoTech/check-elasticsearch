@@ -1,27 +1,25 @@
-package main
+package cmd
 
 import (
-	"io"
 	"github.com/benkeil/icinga-checks-library"
-	"github.com/olivere/elastic"
-	"github.com/sgnl04/check-elasticsearch/pkg/checks/search/queries"
-	"github.com/sgnl04/check-elasticsearch/pkg/utils"
+	"github.com/elastic/go-elasticsearch/v7"
+	"github.com/lhoffjann/check-elasticsearch/pkg/checks/search/queries"
+	"github.com/lhoffjann/check-elasticsearch/pkg/utils"
 	"github.com/spf13/cobra"
+	"io"
 )
 
-type (
-	stringQueryCmd struct {
-		out      io.Writer
-		Client   elastic.Client
-		Url      string
-		Query    string
-		Warning  string
-		Critical string
-		Index    string
-		Cache    bool
-		Verbose  int
-	}
-)
+type stringQueryCmd struct {
+	out      io.Writer
+	Client   *elasticsearch.Client
+	Url      string
+	Query    string
+	Warning  string
+	Critical string
+	Index    string
+	Cache    bool
+	Verbose  int
+}
 
 func newStringQueryCmd(out io.Writer) *cobra.Command {
 	c := &stringQueryCmd{out: out}
@@ -37,7 +35,7 @@ func newStringQueryCmd(out io.Writer) *cobra.Command {
 			if err != nil {
 				icinga.NewResult("NewElasticClient", icinga.ServiceStatusUnknown, err.Error()).Exit()
 			}
-			c.Client = *client
+			c.Client = client
 		},
 		Run: func(cmd *cobra.Command, args []string) {
 			c.run()
