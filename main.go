@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/lhoffjann/check-elasticsearch/cmd"
+	"github.com/SedoTech/check-elasticsearch/cmd"
 )
 
 func main() {

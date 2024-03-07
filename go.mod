@@ -1,4 +1,4 @@
-module github.com/lhoffjann/check-elasticsearch
+module github.com/SedoTech/check-elasticsearch
 
 go 1.21.7
 
