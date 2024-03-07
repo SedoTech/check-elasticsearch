@@ -13,3 +13,8 @@
 .idea
 vendor
 check-elasticsearch
+
+# Build artefacts
+/vendor/
+/build/
+
