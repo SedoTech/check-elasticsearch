@@ -7,7 +7,6 @@ if [ -z "${APP_VERSION}" ]; then
 fi
 
 mkdir -p ./build/
-go build -ldflags "-X main.version=${APP_VERSION}" -o ./build/check-elasticsearch \
-&& {
+go build -ldflags "-X main.version=${APP_VERSION}" -o ./build/check-elasticsearch && {
     chmod +x ./build/check-elasticsearch
 }
