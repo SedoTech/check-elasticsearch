@@ -12,7 +12,7 @@ RUN echo '[INFO] --- update repo index' && \
     echo '[INFO] --- install go' && \
     cd /tmp && \
     wget  --no-verbose "https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz" && \
-    tar -C /usr/local/ -xzf "go${GO_VERSION}.linux-amd64.tar.gz" \
+    tar -C /usr/local/ -xzf "go${GO_VERSION}.linux-amd64.tar.gz" && \
     echo '[INFO] --- build go project' && \
     cd /var/build && \
     ./scripts/build.sh "${APP_VERSION}"
