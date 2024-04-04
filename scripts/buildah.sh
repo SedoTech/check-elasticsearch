@@ -11,7 +11,7 @@ mkdir -p ./build
 buildah rmi builder &>/dev/null
 buildah build \
     -t builder \
-    -v "${PWD}":"/var/build/build" \
+    -v "${PWD}/build":"/var/work/build" \
     -f Containerfile \
     --env APP_VERSION="${APP_VERSION}" \
     .
